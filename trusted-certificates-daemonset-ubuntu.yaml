@@ -1,0 +1,88 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: trusted-ca
+  namespace: kube-system
+data:
+  ca.crt: |+
+    -----BEGIN CERTIFICATE-----
+    MIIFhTCCBG2gAwIBAgIJAOB8YUHgSUpxMA0GCSqGSIb3DQEBCwUAMIGSMQswCQYD
+    VQQGEwJTRzESMBAGA1UECAwJU2luZ2Fwb3JlMRIwEAYDVQQHDAlTaW5nYXBvcmUx
+    DTALBgNVBAoMBFdTS04xDTALBgNVBAsMBFdTS04xFTATBgNVBAMMDCoud3Nrbi5s
+    b2NhbDEmMCQGCSqGSIb3DQEJARYXd2luc29uLnNvdUBuZXh1c2xhYnMuYWkwIBcN
+    MjQwMzA2MDIyNTIzWhgPMjA1MTA3MjIwMjI1MjNaMIGSMQswCQYDVQQGEwJTRzES
+    MBAGA1UECAwJU2luZ2Fwb3JlMRIwEAYDVQQHDAlTaW5nYXBvcmUxDTALBgNVBAoM
+    BFdTS04xDTALBgNVBAsMBFdTS04xFTATBgNVBAMMDCoud3Nrbi5sb2NhbDEmMCQG
+    CSqGSIb3DQEJARYXd2luc29uLnNvdUBuZXh1c2xhYnMuYWkwggEiMA0GCSqGSIb3
+    DQEBAQUAA4IBDwAwggEKAoIBAQDOUIXAW5rfAGNi3XvICyDEwRQfvYPuLi+dAxnb
+    dM/XsLlCsAzj/uTPwid2+ndXIGy3m5XspMRNgpiLCZ6gLwtEg8Di1VpNXnczfrCt
+    fxo52u2Uq1HN2DF2cDvJeXuMQjj8k/4AEyX5QCblyFxKfRIYDY/JeZkxCbLXIOpE
+    yyawcKCZxOWbdUA4yuqx1kDElVIoMrScbCyFJWd1ZNRr7q8kGZZlCl+pH+TMDI2M
+    n3zC5OvjC2rJCNcJXEkpNcJ0k8m4a9GUPtMf2j9GDL9NN8Q8zTHYC6Ip7qZno7bt
+    q6sX7i3slzgrV8AWwKw2ElL9/uLb1+ljXBtTKhlEPtAgNKwHAgMBAAGjggHYMIIB
+    1DAdBgNVHQ4EFgQUsiBX4CY+6mSwU2k6qe4lNeUp5MMwgccGA1UdIwSBvzCBvIAU
+    siBX4CY+6mSwU2k6qe4lNeUp5MOhgZikgZUwgZIxCzAJBgNVBAYTAlNHMRIwEAYD
+    VQQIDAlTaW5nYXBvcmUxEjAQBgNVBAcMCVNpbmdhcG9yZTENMAsGA1UECgwEV1NL
+    TjENMAsGA1UECwwEV1NLTjEVMBMGA1UEAwwMKi53c2tuLmxvY2FsMSYwJAYJKoZI
+    hvcNAQkBFhd3aW5zb24uc291QG5leHVzbGFicy5haYIJAOB8YUHgSUpxMAwGA1Ud
+    EwQFMAMBAf8wCwYDVR0PBAQDAgL8MGYGA1UdEQRfMF2CEm9iamVjdHMud3Nrbi5s
+    b2NhbIIMKi53c2tuLmxvY2Fsgg4qLioud3Nrbi5sb2NhbIIXcHJpc21jZW50cmFs
+    Lndza24ubG9jYWyCEGZpbGVzLndza24ubG9jYWwwZgYDVR0SBF8wXYISb2JqZWN0
+    cy53c2tuLmxvY2FsggwqLndza24ubG9jYWyCDiouKi53c2tuLmxvY2Fsghdwcmlz
+    bWNlbnRyYWwud3Nrbi5sb2NhbIIQZmlsZXMud3Nrbi5sb2NhbDANBgkqhkiG9w0B
+    AQsFAAOCAQEAx21M0dX5pD/r6XDcVNj9swotApKe1XYcvMF9fPYbp4OmEOKgiWip
+    SIQiZv1PRnPUCfl51ZPuzToT/zBHjVmde8yAbIXU/5twrbanyKnj5PMMuCjrO2Hk
+    0KWMd6M26dToLcUw0wsd7LtcwkgiIU87VAvls8BlAsV7MXBuoSvfplHm2tC8o2wc
+    WM8jTiQDjJAFcOtVWG4rPYQAYIGtWg3yipiPXlNWCAEdFFGuCKy3Z3hkVPKC82fk
+    RXaQgRxPCNiihBS1Plbj4GIPYvZmtL+iCTi94rv4DMMBSEk1ux0VhL6uDv+rBSef
+    K1Srl87ab8ZDbFxsKkf20FmT1kW9r5Pfxg==
+    -----END CERTIFICATE-----
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: setup-script
+  namespace: kube-system
+data:
+  setup.sh: |
+    echo "$TRUSTED_CERT" > /usr/local/share/ca-certificates/registry-ca.crt && update-ca-certificates && systemctl restart containerd
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  namespace: kube-system
+  name: node-custom-setup
+  labels:
+    k8s-app: node-custom-setup
+spec:
+  selector:
+    matchLabels:
+      k8s-app: node-custom-setup
+  template:
+    metadata:
+      labels:
+        k8s-app: node-custom-setup
+    spec:
+      hostPID: true
+      hostNetwork: true
+      initContainers:
+        - name: init-node
+          command: ["nsenter"]
+          args: ["--mount=/proc/1/ns/mnt", "--", "sh", "-c", "$(SETUP_SCRIPT)"]
+          image: ubuntu:20.04
+          env:
+            - name: TRUSTED_CERT
+              valueFrom:
+                configMapKeyRef:
+                  name: trusted-ca
+                  key: ca.crt
+            - name: SETUP_SCRIPT
+              valueFrom:
+                configMapKeyRef:
+                  name: setup-script
+                  key: setup.sh
+          securityContext:
+            privileged: true
+      containers:
+        - name: wait
+          image: k8s.gcr.io/pause:3.1

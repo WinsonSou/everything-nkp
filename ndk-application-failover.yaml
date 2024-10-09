@@ -1,0 +1,7 @@
+apiVersion: dataservices.nutanix.com/v1alpha1
+kind: ApplicationSnapshotRestore
+metadata:
+  name: failover-wskn-wordpress
+  namespace: wskn
+spec:
+  applicationSnapshotName: wskn-wordpress-3f258a1c4e125ad8-1b7858b

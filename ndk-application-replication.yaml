@@ -1,0 +1,46 @@
+apiVersion: dataservices.nutanix.com/v1alpha1
+kind: Application
+metadata:
+  name: wskn-wordpress
+  namespace: wskn
+spec:
+  applicationSelector:
+    resourceLabelSelectors:
+      - labelSelector:
+          matchLabels:
+            app: wordpress
+---
+apiVersion: scheduler.nutanix.com/v1alpha1
+kind: JobScheduler
+metadata:
+  name: hourly-schedule
+  namespace: wskn
+spec:
+  interval:
+    minutes: 60
+  startTime: 2024-10-07T10:51:00+08:00
+  timeZoneName: "Asia/Singapore"
+---
+apiVersion: dataservices.nutanix.com/v1alpha1
+kind: ProtectionPlan
+metadata:
+  name: hourly-protection-plan
+  namespace: wskn
+spec:
+  scheduleName: hourly-schedule
+  retentionPolicy:
+    retentionCount: 1
+  replicationConfigs:
+    - replicationTargetName: wskn-cluster-02
+---
+apiVersion: dataservices.nutanix.com/v1alpha1
+kind: AppProtectionPlan
+metadata:
+  name: replicate-wskn-wordpress-hourly
+  namespace: wskn
+spec:
+  applicationName: wskn-wordpress
+  labels:
+    appName: wskn-wordpress
+  protectionPlanNames:
+    - hourly-protection-plan

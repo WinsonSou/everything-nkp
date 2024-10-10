@@ -1,0 +1,18 @@
+# Default values for bookinfo
+replicaCount:
+  details: 1
+  ratings: 1
+  reviews:
+    v1: 1
+    v2: 1
+    v3: 1
+  productpage: 1
+
+image:
+  repository: docker.io/istio/examples-bookinfo
+  tag: 1.20.1
+  pullPolicy: IfNotPresent
+
+gateway:
+  enabled: true
+  host: "*"
